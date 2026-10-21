@@ -49,6 +49,7 @@ jobs:
           python -m pip install --upgrade pip
           cd garak
           pip install --no-cache-dir -r requirements.txt
+          pip install --no-cache-dir "pytest-xdist[psutil]>=3.6"
           python -m pip cache purge
 
       - name: Restore test cache artifacts
@@ -64,4 +65,4 @@ jobs:
       - name: Test with pytest
         run: |
           cd garak
-          python -m pytest tests/
+          python -m pytest -n logical tests/
