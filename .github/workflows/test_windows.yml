@@ -1,12 +1,7 @@
 name: Garak pytest - Windows
 
 on:
-  push:
-    branches:
-      - 'main'
-  pull_request:
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   actions: none
