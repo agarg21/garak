@@ -257,7 +257,7 @@ class _CannedHandler(http.server.BaseHTTPRequestHandler):
         pass
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def mtls_server(mtls_certs):
     """Start a real mTLS HTTPS server on 127.0.0.1 (random port) in a daemon
     thread and yield (server, port).  Calls server.shutdown() on teardown."""
@@ -266,7 +266,7 @@ def mtls_server(mtls_certs):
     ctx.load_verify_locations(mtls_certs["ca_cert"])
     ctx.verify_mode = ssl.CERT_REQUIRED  # require client cert
 
-    server = http.server.HTTPServer(("127.0.0.1", 0), _CannedHandler)
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _CannedHandler)
     server.socket = ctx.wrap_socket(server.socket, server_side=True)
     port = server.server_address[1]
 
@@ -276,6 +276,7 @@ def mtls_server(mtls_certs):
     yield server, port
 
     server.shutdown()
+    server.server_close()
     thread.join(timeout=5)
 
 
