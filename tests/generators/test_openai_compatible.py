@@ -83,7 +83,7 @@ def compatible() -> Iterable[OpenAICompatible]:
                 if name != "Generator"
             ]
         )
-        for klass_name, module_klass in module_klasses:
+        for klass_name, module_klass in sorted(module_klasses, key=lambda nk: nk[0]):
             if hasattr(module_klass, "active") and module_klass.active:
                 if module_klass == OpenAICompatible:
                     continue
