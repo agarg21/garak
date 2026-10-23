@@ -9,6 +9,16 @@ import os
 if os.getenv("GARAK_LOG_FILE", None) is None:
     os.environ["GARAK_LOG_FILE"] = str(os.devnull)
 
+# under pytest-xdist, give each worker its own config dir: tests that stage
+# garak.site.yaml there would otherwise race with other workers' load_config()
+_xdist_worker = os.getenv("PYTEST_XDIST_WORKER")
+if _xdist_worker:
+    import tempfile
+
+    os.environ["XDG_CONFIG_HOME"] = tempfile.mkdtemp(
+        prefix=f"garak-config-{_xdist_worker}-"
+    )
+
 from garak import _config, _plugins
 import shutil
 
