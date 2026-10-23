@@ -22,6 +22,23 @@ if _xdist_worker:
 from garak import _config, _plugins
 import shutil
 
+# under pytest-xdist, the topic.Wordnet* probes share one wordnet sqlite DB in
+# the user cache dir; two workers installing the lexicon at once hit
+# "database is locked". Serialize the install with a lock file next to it.
+if _xdist_worker:
+    import filelock
+    import wn
+
+    _wn_download = wn.download
+
+    def _locked_wn_download(*args, **kwargs):
+        lock = _config.transient.cache_dir / "data" / "wn.lock"
+        lock.parent.mkdir(parents=True, exist_ok=True)
+        with filelock.FileLock(str(lock)):
+            return _wn_download(*args, **kwargs)
+
+    wn.download = _locked_wn_download
+
 # force a local cache file to exist when this top level import is loaded
 if not os.path.isfile(_plugins.PluginCache._user_plugin_cache_filename):
     _plugins.PluginCache.instance()
